@@ -1,0 +1,19 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+# production
+.next
+
+# misc
+README2.md
+
+
+# VS Code Project Files
+.vscode
+
+/coverage
+
+.idea/
+.DS_Store

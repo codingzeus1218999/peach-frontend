@@ -1,0 +1,10 @@
+# Block all crawlers
+User-agent: *
+Disallow: /upload
+Disallow: /upload/
+Disallow: /success
+
+
+# Allow all crawlers
+User-agent: *
+Allow: /

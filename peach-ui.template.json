@@ -1,0 +1,415 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "ImageName": {
+            "Type": "String",
+            "Description": "The Image URI used for the cluster"
+        },
+        "HostedZoneId": {
+            "Type": "String",
+            "Description": "The Hosted Zone Id of express.peach.me",
+            "Default": "Z01332682WGQKX3JL47CM"
+        },
+        "CustomDomainName": {
+            "Type": "String",
+            "Description": "The custom domain name",
+            "Default": "uat.express.peach.me"
+        }
+    },
+    "Resources": {
+        "TaskDefinition": {
+            "Type": "AWS::ECS::TaskDefinition",
+            "Properties": {
+                "Family": "peach-express-task-definition",
+                "Memory": 512,
+                "Cpu": 256,
+                "NetworkMode": "awsvpc",
+                "RequiresCompatibilities": [
+                    "FARGATE"
+                ],
+                "RunTimePlatform": {
+                    "OperatingSystemFamily": "LINUX"
+                },
+                "ExecutionRoleArn": {
+                    "Ref": "ExecutionRole"
+                },
+                "ContainerDefinitions": [
+                    {
+                        "Name": "peach-express-container",
+                        "Image": {
+                            "Ref": "ImageName"
+                        },
+                        "PortMappings": [
+                            {
+                                "ContainerPort": 80,
+                                "HostPort": 80
+                            }
+                        ],
+                        "LogConfiguration": {
+                            "LogDriver": "awslogs",
+                            "Options": {
+                                "awslogs-create-group": "true",
+                                "awslogs-group": "arvin-test-ecs-logs",
+                                "awslogs-region": "us-west-2",
+                                "awslogs-stream-prefix": "peach-express-ui"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "Cluster": {
+            "Type": "AWS::ECS::Cluster",
+            "Properties": {
+                "ClusterName": "peach-express-cluster"
+            }
+        },
+        "Service": {
+            "Type": "AWS::ECS::Service",
+            "DependsOn": [
+                "Listener"
+            ],
+            "Properties": {
+                "Cluster": {
+                    "Ref": "Cluster"
+                },
+                "DesiredCount": 1,
+                "TaskDefinition": {
+                    "Ref": "TaskDefinition"
+                },
+                "LaunchType": "FARGATE",
+                "NetworkConfiguration": {
+                    "AwsvpcConfiguration": {
+                        "Subnets": [
+                            {
+                                "Ref": "Subnet1"
+                            },
+                            {
+                                "Ref": "Subnet2"
+                            }
+                        ],
+                        "SecurityGroups": [
+                            {
+                                "Ref": "SecurityGroup"
+                            }
+                        ],
+                        "AssignPublicIp": "ENABLED"
+                    }
+                },
+                "LoadBalancers": [
+                    {
+                        "ContainerPort": 80,
+                        "ContainerName": "peach-express-container",
+                        "TargetGroupArn": {
+                            "Ref": "TargetGroup"
+                        }
+                    }
+                ]
+            }
+        },
+        "SecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Security Group for the Peach Express ECS VPC",
+                "GroupName": "PE-ECS-SecurityGroup",
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 80,
+                        "ToPort": 80,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 443,
+                        "ToPort": 443,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 3000,
+                        "ToPort": 3000,
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "Subnet1": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "CidrBlock": "10.1.1.0/24",
+                "AvailabilityZone": "us-west-2a"
+            }
+        },
+        "Subnet2": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "CidrBlock": "10.1.2.0/24",
+                "AvailabilityZone": "us-west-2b"
+            }
+        },
+        "SubnetRouteTableAssociation1": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "RouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "Subnet1"
+                }
+            }
+        },
+        "SubnetRouteTableAssociation2": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "RouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "Subnet2"
+                }
+            }
+        },
+        "Route": {
+            "Type": "AWS::EC2::Route",
+            "DependsOn": [
+                "GatewayAttachment"
+            ],
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "RouteTable"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            }
+        },
+        "RouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PE-ECS-RouteTable"
+                    }
+                ]
+            }
+        },
+        "GatewayAttachment": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            }
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PE-ECS-InternetGateway"
+                    }
+                ]
+            }
+        },
+        "VPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "10.1.0.0/16",
+                "EnableDnsSupport": true,
+                "EnableDnsHostnames": true,
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "PE-ECS-VPC"
+                    }
+                ]
+            }
+        },
+        "ExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName": "peach-express-ecs-execution-role",
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs-tasks.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "Path": "/",
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+                    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole",
+                    "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+                ],
+                "Policies": [
+                    {
+                        "PolicyName": "CreateLogPolicy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "logs:CreateLogGroup",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents"
+                                    ],
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "ALB": {
+            "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "Properties": {
+                "Name": "Peach-Express-ALB",
+                "Subnets": [
+                    {
+                        "Ref": "Subnet1"
+                    },
+                    {
+                        "Ref": "Subnet2"
+                    }
+                ],
+                "SecurityGroups": [
+                    {
+                        "Ref": "SecurityGroup"
+                    }
+                ],
+                "Scheme": "internet-facing",
+                "Type": "application",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Peach-Express-ALB"
+                    }
+                ]
+            }
+        },
+        "TargetGroup": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "Name": "TargetGroup",
+                "Port": 80,
+                "Protocol": "HTTP",
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "HealthCheckIntervalSeconds": 30,
+                "HealthCheckProtocol": "HTTP",
+                "HealthCheckPath": "/",
+                "HealthCheckTimeoutSeconds": 5,
+                "HealthyThresholdCount": 2,
+                "UnhealthyThresholdCount": 2,
+                "Matcher": {
+                    "HttpCode": "200"
+                },
+                "TargetType": "ip",
+                "TargetGroupAttributes": [
+                    {
+                        "Key": "deregistration_delay.timeout_seconds",
+                        "Value": "30"
+                    }
+                ]
+            }
+        },
+        "Listener": {
+            "Type": "AWS::ElasticLoadBalancingV2::Listener",
+            "Properties": {
+                "LoadBalancerArn": {
+                    "Ref": "ALB"
+                },
+                "Protocol": "HTTPS",
+                "Port": 443,
+                "DefaultActions": [
+                    {
+                        "Type": "forward",
+                        "TargetGroupArn": {
+                            "Ref": "TargetGroup"
+                        }
+                    }
+                ],
+                "Certificates": [
+                    {
+                        "CertificateArn": {
+                            "Ref": "UIDomainCert"
+                        }
+                    }
+                ]
+            }
+        },
+        "PeachExpressAliasRecord": {
+            "Type": "AWS::Route53::RecordSet",
+            "Properties": {
+                "HostedZoneId": {
+                    "Ref": "HostedZoneId"
+                },
+                "Name": {
+                    "Ref": "CustomDomainName"
+                },
+                "Type": "A",
+                "AliasTarget": {
+                    "HostedZoneId": {
+                        "Fn::GetAtt": [
+                            "ALB",
+                            "CanonicalHostedZoneID"
+                        ]
+                    },
+                    "DNSName": {
+                        "Fn::GetAtt": [
+                            "ALB",
+                            "DNSName"
+                        ]
+                    }
+                }
+            }
+        },
+        "UIDomainCert": {
+            "Type": "AWS::CertificateManager::Certificate",
+            "Properties": {
+                "DomainName": {
+                    "Ref": "CustomDomainName"
+                },
+                "ValidationMethod": "DNS",
+                "DomainValidationOptions": [
+                    {
+                        "DomainName": {
+                            "Ref": "CustomDomainName"
+                        },
+                        "HostedZoneId": {
+                            "Ref": "HostedZoneId"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

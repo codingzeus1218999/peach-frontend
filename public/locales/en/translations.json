@@ -1,0 +1,67 @@
+{
+  "app.header.buttons.feedback.text": "Feedback",
+  "landing.page.sender.heading": "Share with <1/> Confidence",
+  "landing.page.sender.paragraph": "You've swallowed a planet! All I've got to do is pass as an ordinary human being. Simple.",
+  "landing.page.sender.rain.heading": "Drop ‘em!",
+  "landing.page.sender.rain.text": "Drop files or folders anywhere on this window to share them",
+  "landing.page.sender.terms.toast<1>link</1>": "By using our service you are agreeing to our <1>Terms and Conditions</1>",
+  "landing.page.sender.heading.swallowed": "You've swallowed <1/> a planet!",
+
+  "notFound.page.sender.paragraph": "You've swallowed a planet! All I've got to do is pass as an ordinary human being.",
+  "notFound.page.sender.takeMeHome": "Take me home",
+
+  "landing.page.sender.form.heading": "Add files",
+  "landing.page.sender.form.formHeading": "Add more files",
+  "landing.page.sender.form.maxUploadSize": "2GB max",
+  "landing.page.sender.form.selectFiles": "{{count}} files",
+  "landing.page.sender.form.btn.removeAllFiles": "Remove",
+  "landing.page.sender.form.remainingSpace": "{{size}} remaining",
+  "landing.page.sender.form.sendBtn": "Send",
+  "landing.page.sender.form.errors.fileSizeExceeds": "Files not added. File size exceeds the 2 GB limit",
+  "landing.page.sender.form.errors.sameFileName": "Couldn’t add files. Some of your files have the same name. Please rename them and try again.",
+  "landing.page.sender.form.errors.virusDetected": "These files contain viruses. Please remove them to continue.",
+  "landing.page.sender.form.message.label": "Message (Optional)",
+  "landing.page.sender.form.message.placeholder": "e.g files send",
+  "landing.page.sender.form.receiversEmails.invalid": "One of the email addresses you entered is incorrect",
+  "landing.page.sender.form.receiversEmails.input.placeholder": "Add emails",
+  "landing.page.sender.form.receiversEmails.input.label": "Send to",
+  "landing.page.sender.form.receiversEmails.extraMails.chip": "+{{count}} other",
+  "landing.page.sender.form.senderEmail.invalid": "The email address you entered is incorrect",
+  "landing.page.sender.form.senderEmail.input.placeholder": "Enter your email",
+  "landing.page.sender.form.senderEmail.input.label": "Your email",
+
+  "analyzing.page.sender.heading": "Virus scan",
+  "analyzing.page.sender.pauseOrEditTransfer": "Pause and edit transfer",
+  "uploading.page.sender.heading": "Uploading files",
+  "uploading.page.sender.pauseOrEditTransfer": "Pause and edit transfer",
+
+  "success.page.sender.heading": "Awesome!",
+  "success.page.sender.description": "Your recipients will soon receive an email with file download link and password (if set).",
+  "success.page.sender.expiration": "File access expires {{expDate}}.",
+  "success.page.sender.copyLink": "Copy download link",
+  "success.page.sender.linkCopied": "Copied to clipboard",
+
+  "analyzing.page.virus.detected_one": "{{count}} of your file may be harmful, we can’t send this file. Please edit your transfer and try again.",
+  "analyzing.page.virus.detected_other": "{{count}} of your files may be harmful, we can’t send these files. Please edit your transfer and try again.",
+  "analyzing.page.virus.editTransferBtn": "Edit transfer",
+  "analyzing.page.virus.files.header": "These files contain viruses",
+
+  "landing.page.receiver.heading": "Get your assets moving",
+  "landing.page.receiver.paragraph": "Powerfully simple file transfer — designed with and for advertising people. We’re building a fast, precise and secure tool that will change how your campaigns go live.",
+  "landing.page.receiver.sub.paragraph": "What’s next? Platform integrations, rich asset preview, file QC, AI creative analytics and more…",
+
+  "landing.page.receiver.form.heading": "You got files!",
+  "landing.page.receiver.form.paragraph": " sent you {{count}} files, {{size}} in total - Expires on {{expiryDate}}",
+  "landing.page.receiver.form.submitBtn": "Continue",
+
+  "landing.page.receiver.filesView.ButtonDownloadAll": "Download all",
+  "landing.page.receiver.filesView.ButtonDownloadAll.Started": "Download started",
+  "landing.page.receiver.filesView.CopyLinkButton": "Copy and share your link",
+  "landing.page.receiver.filesView.commentBoxTitle": "{{name}} left you a note ↓",
+  "landing.page.receiver.filesView.Size": "1 file · {{size}} in total",
+  "landing.page.receiver.filesView.SizeAndCounting": "{{count}} files · {{size}} in total",
+
+  "expired.page.sender.heading": "Transfer expired",
+  "expired.page.sender.description": "You've swallowed a planet! All I've got to do is pass as an ordinary human being.",
+  "expired.page.sender.sendFiles": "Send files"
+}
